@@ -1,5 +1,6 @@
 info.onCountdownEnd(function () {
     game.gameOver(false)
+    game.splash(info.score())
 })
 scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.chestClosed, function (sprite, location) {
     music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.UntilDone)
@@ -281,7 +282,11 @@ hero.setPosition(10, 10)
 controller.moveSprite(hero)
 scene.cameraFollowSprite(hero)
 let level = 1
+info.setScore(100)
 info.startCountdown(30)
+game.onUpdateInterval(1000, function () {
+    info.changeScoreBy(-1)
+})
 forever(function () {
     if (level == 1) {
         tiles.setCurrentTilemap(tilemap`level1`)
