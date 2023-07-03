@@ -7,8 +7,62 @@ scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.chestClosed, function (sp
     level += 1
     hero.setPosition(10, 10)
     scene.cameraShake(4, 500)
+    newLevel()
     info.startCountdown(30)
 })
+scene.onOverlapTile(SpriteKind.Player, assets.tile`myTile5`, function (sprite, location) {
+    battle += 1
+    if (battle == 1) {
+        boss = sprites.create(img`
+            ........................
+            ........................
+            ........................
+            ........................
+            ..........ffff..........
+            ........ff1111ff........
+            .......fb111111bf.......
+            .......f11111111f.......
+            ......fd11111111df......
+            ......fd11111111df......
+            ......fddd1111dddf......
+            ......fbdbfddfbdbf......
+            ......fcdcf11fcdcf......
+            .......fb111111bf.......
+            ......fffcdb1bdffff.....
+            ....fc111cbfbfc111cf....
+            ....f1b1b1ffff1b1b1f....
+            ....fbfbffffffbfbfbf....
+            .........ffffff.........
+            ...........fff..........
+            ........................
+            ........................
+            ........................
+            ........................
+            `, SpriteKind.Enemy)
+        boss.setPosition(148, 1)
+        boss.follow(hero, 75)
+    }
+})
+function newLevel () {
+    if (level == 1) {
+        tiles.setCurrentTilemap(tilemap`level1`)
+    }
+    if (level == 2) {
+        tiles.setCurrentTilemap(tilemap`level2`)
+    }
+    if (level == 3) {
+        tiles.setCurrentTilemap(tilemap`level4`)
+    }
+    if (level == 4) {
+        game.gameOver(true)
+    }
+}
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    game.gameOver(false)
+})
+let boss: Sprite = null
+let level = 0
+let battle = 0
 let hero: Sprite = null
 scene.setBackgroundImage(img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -261,43 +315,73 @@ music.play(music.melodyPlayable(music.bigCrash), music.PlaybackMode.UntilDone)
 effects.blizzard.startScreenEffect(1000)
 scene.cameraShake(4, 1000)
 hero = sprites.create(img`
-    . . . . c c c c c c . . . . . . 
-    . . . c 6 7 7 7 7 6 c . . . . . 
-    . . c 7 7 7 7 7 7 7 7 c . . . . 
-    . c 6 7 7 7 7 7 7 7 7 6 c . . . 
-    . c 7 c 6 6 6 6 c 7 7 7 c . . . 
-    . f 7 6 f 6 6 f 6 7 7 7 f . . . 
-    . f 7 7 7 7 7 7 7 7 7 7 f . . . 
-    . . f 7 7 7 7 6 c 7 7 6 f c . . 
-    . . . f c c c c 7 7 6 f 7 7 c . 
-    . . c 7 2 7 7 7 6 c f 7 7 7 7 c 
-    . c 7 7 2 7 7 c f c 6 7 7 6 c c 
-    c 1 1 1 1 7 6 f c c 6 6 6 c . . 
-    f 1 1 1 1 1 6 6 c 6 6 6 6 f . . 
-    f 6 1 1 1 1 1 6 6 6 6 6 c f . . 
-    . f 6 1 1 1 1 1 1 6 6 6 f . . . 
-    . . c c c c c c c c c f . . . . 
+    . . . . . . c c c c c c . . . . 
+    . . . . . c 6 7 7 7 7 6 c . . . 
+    . . . . c 7 7 7 7 7 7 7 7 c . . 
+    . . . c 6 7 7 7 7 7 7 7 7 6 c . 
+    . . . c 7 7 7 c 6 6 6 6 c 7 c . 
+    . . . f 7 7 7 6 f 6 6 f 6 7 f . 
+    . . . f 7 7 7 7 7 7 7 7 7 7 f . 
+    . . c f 6 7 7 c 6 7 7 7 7 f . . 
+    . c 7 7 f 6 7 7 c c c c f . . . 
+    c 7 7 7 7 f c 6 7 7 7 2 7 c . . 
+    c c 6 7 7 6 c f c 7 7 2 7 7 c . 
+    . . c 6 6 6 c c f 6 7 1 1 1 1 c 
+    . . f 6 6 6 6 c 6 6 1 1 1 1 1 f 
+    . . f c 6 6 6 6 6 1 1 1 1 1 6 f 
+    . . . f 6 6 6 1 1 1 1 1 1 6 f . 
+    . . . . f c c c c c c c c c . . 
     `, SpriteKind.Player)
 hero.setPosition(10, 10)
 controller.moveSprite(hero)
 scene.cameraFollowSprite(hero)
-let level = 1
+battle = 0
+level = 1
+newLevel()
 info.setScore(100)
 info.startCountdown(30)
+game.onUpdate(function () {
+    if (hero.vx < 0) {
+        hero.setImage(img`
+            . . . c c c c c c . . . . . . . 
+            . . c 6 7 7 7 7 6 c . . . . . . 
+            . c 7 7 7 7 7 7 7 7 c . . . . . 
+            c 6 7 7 7 7 7 7 7 7 6 c . . . . 
+            c 7 c 6 6 6 6 c 7 7 7 c . . . . 
+            f 7 6 f 6 6 f 6 7 7 7 f . . . . 
+            f 7 7 7 7 7 7 7 7 7 7 f . . . . 
+            . f 7 7 7 7 6 c 7 7 6 f . . . . 
+            . . f c c c c 7 7 6 f c c c . . 
+            . . c 6 2 7 7 7 f c c 7 7 7 c . 
+            . c 6 7 7 2 7 7 c f 6 7 7 7 7 c 
+            . c 1 1 1 1 7 6 6 c 6 6 6 c c c 
+            . c 1 1 1 1 1 6 6 6 6 6 6 c . . 
+            . c 6 1 1 1 1 1 6 6 6 6 6 c . . 
+            . . c 6 1 1 1 1 1 7 6 6 c c . . 
+            . . . c c c c c c c c c c . . . 
+            `)
+    }
+    if (hero.vx > 1) {
+        hero.setImage(img`
+            . . . . . . . c c c c c c . . . 
+            . . . . . . c 6 7 7 7 7 6 c . . 
+            . . . . . c 7 7 7 7 7 7 7 7 c . 
+            . . . . c 6 7 7 7 7 7 7 7 7 6 c 
+            . . . . c 7 7 7 c 6 6 6 6 c 7 c 
+            . . . . f 7 7 7 6 f 6 6 f 6 7 f 
+            . . . . f 7 7 7 7 7 7 7 7 7 7 f 
+            . . . . f 6 7 7 c 6 7 7 7 7 f . 
+            . . c c c f 6 7 7 c c c c f . . 
+            . c 7 7 7 c c f 7 7 7 2 6 c . . 
+            c 7 7 7 7 6 f c 7 7 2 7 7 6 c . 
+            c c c 6 6 6 c 6 6 7 1 1 1 1 c . 
+            . . c 6 6 6 6 6 6 1 1 1 1 1 c . 
+            . . c 6 6 6 6 6 1 1 1 1 1 6 c . 
+            . . c c 6 6 7 1 1 1 1 1 6 c . . 
+            . . . c c c c c c c c c c . . . 
+            `)
+    }
+})
 game.onUpdateInterval(1000, function () {
     info.changeScoreBy(-1)
-})
-forever(function () {
-    if (level == 1) {
-        tiles.setCurrentTilemap(tilemap`level1`)
-    }
-    if (level == 2) {
-        tiles.setCurrentTilemap(tilemap`level2`)
-    }
-    if (level == 3) {
-        tiles.setCurrentTilemap(tilemap`level4`)
-    }
-    if (level == 4) {
-        game.gameOver(true)
-    }
 })
